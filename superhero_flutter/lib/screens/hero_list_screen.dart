@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:superhero_flutter/dao/hero_dao.dart';
 import 'package:superhero_flutter/models/hero.dart';
+import 'package:superhero_flutter/screens/hero_detail_screen.dart';
 import 'package:superhero_flutter/services/hero_service.dart';
 import 'package:superhero_flutter/widgets/custom_search_bar.dart';
 
@@ -103,23 +104,30 @@ class _HeroItemState extends State<HeroItem> {
         }
       },
     );
-    return ListTile(
-      leading: Image.network(widget.hero.image),
-      title: Text(widget.hero.name),
-      subtitle: Text(widget.hero.fullName),
-      trailing: IconButton(
-          onPressed: () {
-            setState(() {
-              _isFavorite = !_isFavorite;
-            });
-            _isFavorite
-                ? _heroDao.insert(widget.hero)
-                : _heroDao.delete(widget.hero);
-          },
-          icon: Icon(
-            Icons.favorite,
-            color: _isFavorite ? Colors.red : Colors.grey,
-          )),
+    return GestureDetector(
+      onTap: () {
+        Navigator.push(context, MaterialPageRoute(builder:(context) => HeroDetailScreen(superHero: widget.hero),));
+      },
+      child: ListTile(
+        leading: Hero(
+          tag: widget.hero.id,
+          child: Image.network(widget.hero.image)),
+        title: Text(widget.hero.name),
+        subtitle: Text(widget.hero.fullName),
+        trailing: IconButton(
+            onPressed: () {
+              setState(() {
+                _isFavorite = !_isFavorite;
+              });
+              _isFavorite
+                  ? _heroDao.insert(widget.hero)
+                  : _heroDao.delete(widget.hero);
+            },
+            icon: Icon(
+              Icons.favorite,
+              color: _isFavorite ? Colors.red : Colors.grey,
+            )),
+      ),
     );
   }
 }
