@@ -15,12 +15,13 @@ class PowerStats {
       required this.combat});
 
   PowerStats.fromJson(Map<String, dynamic> json)
-      : intelligence = json["intelligence"] ?? "0",
-        strength = json["strength"] ?? "0",
-        speed = json["speed"] ?? "0",
-        durability = json["durability"] ?? "0",
-        power = json["power"] ?? "0",
-        combat = json["combat"] ?? "0";
+      : intelligence =
+            (json["intelligence"] != "null") ? json["intelligence"] : "0",
+        strength = (json["strength"] != "null") ? json["strength"] : "0",
+        speed = (json["speed"] != "null") ? json["speed"] : "0",
+        durability = (json["durability"] != "null") ? json["durability"] : "0",
+        power = (json["power"] != "null") ? json["power"] : "0",
+        combat = (json["combat"] != "null") ? json["combat"] : "0";
 }
 
 class SuperHero {

@@ -1,5 +1,6 @@
 import 'package:sqflite/sqlite_api.dart';
 import 'package:superhero_flutter/database/app_database.dart';
+import 'package:superhero_flutter/models/favorite_hero.dart';
 import 'package:superhero_flutter/models/hero.dart';
 
 class HeroDao {
@@ -20,5 +21,11 @@ class HeroDao {
         .query(AppDatabase().tableName, where: "id = ?", whereArgs: [hero.id]);
 
     return maps.isNotEmpty;
+  }
+
+  Future<List<FavoriteHero>>fetchAll() async {
+    Database db = await AppDatabase().openDb();
+    List maps = await db.query(AppDatabase().tableName);
+    return maps.map((map) => FavoriteHero.fromMap(map)).toList();
   }
 }
