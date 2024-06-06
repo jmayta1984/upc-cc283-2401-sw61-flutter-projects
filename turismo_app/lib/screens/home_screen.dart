@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:turismo_app/screens/favorite_list_screen.dart';
 import 'package:turismo_app/screens/package_search_screen.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -12,7 +13,7 @@ class _HomeScreenState extends State<HomeScreen> {
   int _currentIndex = 0;
   final List<Widget> _tabs = const [
     PackageSearchScreen(),
-    Center(child: Text("Favorites"))
+    FavoriteListScreen()
   ];
   final List<BottomNavigationBarItem> _options = const [
     BottomNavigationBarItem(icon: Icon(Icons.search), label: "Search"),

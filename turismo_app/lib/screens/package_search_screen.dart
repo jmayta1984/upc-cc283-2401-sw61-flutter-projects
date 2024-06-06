@@ -1,18 +1,19 @@
 import 'package:flutter/material.dart';
+import 'package:turismo_app/dao/package_dao.dart';
 import 'package:turismo_app/models/package.dart';
 import 'package:turismo_app/services/package_service.dart';
 
 enum Place {
-  machuPicchu(siteId: "s001", description: "Machu Picchu"),
-  ayacucho(siteId: "s002", description: "Ayachucho"),
-  chichenItza(siteId: "s003", description: "Chichen Itza"),
-  cristoRedentor(siteId: "s004", description: "Cristo Redentor"),
-  islasMalvinas(siteId: "s005", description: "Islas Malvinas"),
-  murallaChina(siteId: "s006", description: "Muralla China");
+  machuPicchu(id: "s001", description: "Machu Picchu"),
+  ayacucho(id: "s002", description: "Ayacucho"),
+  chichenItza(id: "s003", description: "Chichen Itza"),
+  cristoRedentor(id: "s004", description: "Cristo Redentor"),
+  islasMalvinas(id: "s005", description: "Islas Malvinas"),
+  murallaChina(id: "s006", description: "Muralla China");
 
-  final String siteId;
+  final String id;
   final String description;
-  const Place({required this.siteId, required this.description});
+  const Place({required this.id, required this.description});
 }
 
 class PackageSearchScreen extends StatefulWidget {
@@ -44,7 +45,6 @@ class _PackageSearchScreenState extends State<PackageSearchScreen> {
       appBar: AppBar(),
       body: Column(
         children: [
-          
           SizedBox(
             height: 40,
             child: ListView(
@@ -87,28 +87,78 @@ class PackageList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    double width = MediaQuery.of(context).size.width;
-
     return ListView.builder(
       itemCount: packages.length,
       itemBuilder: (context, index) {
         Package package = packages[index];
 
-        return Card(
-          child: Column(
-            children: [
-              Text(package.name),
-              Text(package.location),
-              Text(package.description),
-              Image.network(
-                width: width,
-                package.image,
-                fit: BoxFit.scaleDown,
-              )
-            ],
-          ),
-        );
+        return PackageItem(package: package);
       },
+    );
+  }
+}
+
+class PackageItem extends StatefulWidget {
+  const PackageItem({
+    super.key,
+    required this.package,
+  });
+
+  final Package package;
+
+  @override
+  State<PackageItem> createState() => _PackageItemState();
+}
+
+class _PackageItemState extends State<PackageItem> {
+  bool _isFavorite = false;
+
+  initialize() async {
+    _isFavorite = await PackageDao().isFavorite(widget.package);
+
+    if (mounted) {
+      setState(() {
+        _isFavorite = _isFavorite;
+      });
+    }
+  }
+
+  
+
+  @override
+  Widget build(BuildContext context) {
+    double width = MediaQuery.of(context).size.width;
+    initialize();
+
+    return Card(
+      child: Column(
+        children: [
+          Text(widget.package.name),
+          Text(widget.package.location),
+          IconButton(
+              onPressed: () {
+                if (mounted) {
+                  setState(() {
+                    _isFavorite = !_isFavorite;
+                    _isFavorite
+                        ? PackageDao().insert(widget.package)
+                        : PackageDao().delete(widget.package);
+                  });
+                }
+              },
+              icon: Icon(Icons.favorite,
+                  color: _isFavorite
+                      ? Theme.of(context).primaryColorDark
+                      : Theme.of(context).hintColor)),
+          Text(widget.package.description),
+          Image.network(
+            widget.package.image,
+            height: width * 0.75,
+            width: double.infinity,
+            fit: BoxFit.cover,
+          ),
+        ],
+      ),
     );
   }
 }
