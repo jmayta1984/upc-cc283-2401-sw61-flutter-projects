@@ -8,10 +8,10 @@ class PackageDao {
     await database.insert(AppDatabase().tableName, package.toMap());
   }
 
-  delete(Package package) async {
+  delete(String id) async {
     Database database = await AppDatabase().openDb();
     await database.delete(AppDatabase().tableName,
-        where: "id = ?", whereArgs: [package.id]);
+        where: "id = ?", whereArgs: [id]);
   }
 
   Future<bool> isFavorite(Package package) async {

@@ -21,29 +21,31 @@ class FavoriteList extends StatefulWidget {
 
 class _FavoriteListState extends State<FavoriteList> {
   List _favorites = [];
+  final PackageDao _packageDao = PackageDao();
+
+  fetchFavorites() async {
+    _favorites = await _packageDao.fetchAll();
+    if (mounted) {
+      setState(() {
+        _favorites = _favorites;
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder<List>(
-      future: PackageDao().fetchAll(),
-      builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Center(
-            child: CircularProgressIndicator(),
-          );
-        } else if (snapshot.hasError) {
-          return Center(
-            child: Text("Error: $snapshot.error"),
-          );
-        } else {
-          _favorites = snapshot.data ?? [];
-          return ListView.builder(
-            itemCount: _favorites.length,
-            itemBuilder: (context, index) => ListTile(
-              title: Text(_favorites[index].name),
-            ),
-          );
-        }
-      },
+    fetchFavorites();
+    return ListView.builder(
+      itemCount: _favorites.length,
+      itemBuilder: (context, index) => ListTile(
+        title: Text(_favorites[index].name),
+        trailing: IconButton(
+          icon: const Icon(Icons.delete),
+          onPressed: () {
+            _packageDao.delete(_favorites[index].id);
+          },
+        ),
+      ),
     );
   }
 }

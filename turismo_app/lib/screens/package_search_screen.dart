@@ -16,6 +16,15 @@ enum Place {
   const Place({required this.id, required this.description});
 }
 
+enum Type {
+  viaje(id: "1", description: "Viaje"),
+  hospedaje(id: "2", description: "Hospedaje");
+
+  final String id;
+  final String description;
+  const Type({required this.id, required this.description});
+}
+
 class PackageSearchScreen extends StatefulWidget {
   const PackageSearchScreen({super.key});
 
@@ -25,13 +34,12 @@ class PackageSearchScreen extends StatefulWidget {
 
 class _PackageSearchScreenState extends State<PackageSearchScreen> {
   final PackageService _packageService = PackageService();
-  final TextEditingController _controllerPlace = TextEditingController();
-  final TextEditingController _controllerType = TextEditingController();
   List<Package> _packages = [];
+  String _place = "";
+  String _type = "";
 
   search() async {
-    _packages = await _packageService.filterByPlaceByType(
-        _controllerPlace.text, _controllerType.text);
+    _packages = await _packageService.filterByPlaceByType(_place, _type);
     if (mounted) {
       setState(() {
         _packages = _packages;
@@ -45,35 +53,48 @@ class _PackageSearchScreenState extends State<PackageSearchScreen> {
       appBar: AppBar(),
       body: Column(
         children: [
-          SizedBox(
-            height: 40,
-            child: ListView(
-              scrollDirection: Axis.horizontal,
-              children: Place.values
-                  .map((e) => GestureDetector(
-                        child: Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: Text(e.description),
-                        ),
-                      ))
-                  .toList(),
-            ),
-          ),
-          TextField(
-            controller: _controllerPlace,
-            decoration: const InputDecoration(
-              border: OutlineInputBorder(
-                  borderRadius: BorderRadius.all(Radius.circular(8))),
-            ),
-          ),
-          TextField(
-            controller: _controllerType,
-            decoration: const InputDecoration(
-              border: OutlineInputBorder(
-                  borderRadius: BorderRadius.all(Radius.circular(8))),
-            ),
-          ),
-          OutlinedButton(onPressed: search, child: const Text("Search")),
+          ExpansionTile(
+              title: Text(
+                "Places",
+                style: Theme.of(context).textTheme.headlineSmall,
+              ),
+              children: [
+                Wrap(
+                  spacing: 8,
+                  children: Place.values
+                      .map((value) => InputChip(
+                          selected: (_place == value.id),
+                          onSelected: (onValue) {
+                            setState(() {
+                              _place = value.id;
+                            });
+                            search();
+                          },
+                          label: Text(value.description)))
+                      .toList(),
+                ),
+              ]),
+          ExpansionTile(
+              title: Text(
+                "Types",
+                style: Theme.of(context).textTheme.headlineSmall,
+              ),
+              children: [
+                Wrap(
+                  spacing: 8,
+                  children: Type.values
+                      .map((value) => InputChip(
+                          selected: (_type == value.id),
+                          onSelected: (onValue) {
+                            setState(() {
+                              _type = value.id;
+                            });
+                            search();
+                          },
+                          label: Text(value.description)))
+                      .toList(),
+                ),
+              ]),
           Expanded(child: PackageList(packages: _packages)),
         ],
       ),
@@ -123,8 +144,6 @@ class _PackageItemState extends State<PackageItem> {
     }
   }
 
-  
-
   @override
   Widget build(BuildContext context) {
     double width = MediaQuery.of(context).size.width;
@@ -142,7 +161,7 @@ class _PackageItemState extends State<PackageItem> {
                     _isFavorite = !_isFavorite;
                     _isFavorite
                         ? PackageDao().insert(widget.package)
-                        : PackageDao().delete(widget.package);
+                        : PackageDao().delete(widget.package.id);
                   });
                 }
               },
